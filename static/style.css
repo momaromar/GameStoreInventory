@@ -1,0 +1,81 @@
+.card {
+    margin-bottom: 1rem;
+    transition: transform 0.2s;
+}
+
+.card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.item-card {
+    height: 100%;
+}
+
+.item-card .card-body {
+    display: flex;
+    flex-direction: column;
+}
+
+.item-card .card-footer {
+    margin-top: auto;
+}
+
+.badge {
+    font-size: 0.9em;
+    padding: 0.5em 0.8em;
+}
+
+.profit-positive {
+    color: #198754;
+}
+
+.profit-negative {
+    color: #dc3545;
+}
+
+.navbar {
+    margin-bottom: 2rem;
+}
+
+.search-container {
+    margin-bottom: 2rem;
+}
+
+#inventory-list, #sold-items-list {
+    margin-top: 1rem;
+}
+
+.modal-content {
+    border-radius: 0.5rem;
+}
+
+.form-control:focus, .form-select:focus {
+    border-color: #0d6efd;
+    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+}
+
+.btn-primary {
+    background-color: #0d6efd;
+    border-color: #0d6efd;
+}
+
+.btn-primary:hover {
+    background-color: #0b5ed7;
+    border-color: #0a58ca;
+}
+
+.date-added {
+    font-size: 0.9em;
+    color: #6c757d;
+}
+
+.item-type-badge {
+    font-size: 0.8em;
+    padding: 0.4em 0.6em;
+    margin-right: 0.5rem;
+}
+
+.price-info {
+    font-weight: 500;
+} 
