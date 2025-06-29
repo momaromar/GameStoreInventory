@@ -492,4 +492,26 @@ GameStoreInventory/
 - No SQL injection (JSON files only)
 - XSS protection through proper HTML escaping
 
+## Version History
+
+### Initial Release
+**Core Features:**
+- Core inventory management functionality
+- Add, sell, and track items
+- Search and filter capabilities
+- Hold system for customer reservations
+- Local JSON file storage
+- Modern responsive UI with Bootstrap
+- Complete documentation and flowchart
+
+**Key Features:**
+- ✅ Add new inventory items with name, type, and purchase price
+- ✅ Sell items and track profit/loss
+- ✅ Hold items for customers with notes
+- ✅ Release holds with confirmation
+- ✅ Search items by name
+- ✅ Filter by item type (consoles, games, accessories, controllers, merchandise)
+- ✅ View sold items history
+- ✅ Responsive design for single-computer store use
+
 This flowchart provides a comprehensive overview of how the application works, making it easy for new collaborators to understand the codebase and contribute effectively. 
