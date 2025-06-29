@@ -78,4 +78,75 @@
 
 .price-info {
     font-weight: 500;
+}
+
+/* Hold functionality styles */
+.hold-status {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    z-index: 1;
+}
+
+.hold-badge {
+    background-color: #ffc107;
+    color: #000;
+    font-size: 0.8em;
+    padding: 0.3em 0.6em;
+    border-radius: 0.25rem;
+}
+
+.hold-info {
+    background-color: #fff3cd;
+    border: 1px solid #ffeaa7;
+    border-radius: 0.25rem;
+    padding: 0.5rem;
+    margin-top: 0.5rem;
+    font-size: 0.9em;
+}
+
+.hold-info strong {
+    color: #856404;
+}
+
+.btn-hold {
+    background-color: #ffc107;
+    border-color: #ffc107;
+    color: #000;
+}
+
+.btn-hold:hover {
+    background-color: #e0a800;
+    border-color: #d39e00;
+    color: #000;
+}
+
+.btn-release {
+    background-color: #6c757d;
+    border-color: #6c757d;
+}
+
+.btn-release:hover {
+    background-color: #5a6268;
+    border-color: #545b62;
+}
+
+.card.on-hold {
+    border: 2px solid #ffc107;
+}
+
+.card.on-hold .card-header {
+    background-color: #fff3cd;
+    border-bottom: 1px solid #ffeaa7;
+}
+
+.action-buttons {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.action-buttons .btn {
+    flex: 1;
+    min-width: 80px;
 } 

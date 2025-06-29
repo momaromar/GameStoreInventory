@@ -45,7 +45,9 @@ def add_item():
         'name': data['name'],
         'type': data['type'],
         'purchase_price': float(data['purchase_price']),
-        'date_added': datetime.now().isoformat()
+        'date_added': datetime.now().isoformat(),
+        'on_hold': False,
+        'hold_info': None
     }
     
     with open('data/inventory.json', 'r') as f:
@@ -97,6 +99,52 @@ def sell_item():
         return jsonify({'success': True})
     
     return jsonify({'success': False, 'error': 'Item not found'})
+
+@app.route('/api/hold-item', methods=['POST'])
+def hold_item():
+    data = request.json
+    item_id = data['id']
+    customer_name = data['customer_name']
+    hold_note = data['hold_note']
+    
+    with open('data/inventory.json', 'r') as f:
+        inventory = json.load(f)
+    
+    # Find and update the item
+    for item in inventory:
+        if item['id'] == item_id:
+            item['on_hold'] = True
+            item['hold_info'] = {
+                'customer_name': customer_name,
+                'hold_note': hold_note,
+                'date_held': datetime.now().isoformat()
+            }
+            break
+    
+    with open('data/inventory.json', 'w') as f:
+        json.dump(inventory, f, indent=4)
+    
+    return jsonify({'success': True})
+
+@app.route('/api/release-hold', methods=['POST'])
+def release_hold():
+    data = request.json
+    item_id = data['id']
+    
+    with open('data/inventory.json', 'r') as f:
+        inventory = json.load(f)
+    
+    # Find and update the item
+    for item in inventory:
+        if item['id'] == item_id:
+            item['on_hold'] = False
+            item['hold_info'] = None
+            break
+    
+    with open('data/inventory.json', 'w') as f:
+        json.dump(inventory, f, indent=4)
+    
+    return jsonify({'success': True})
 
 @app.route('/api/search', methods=['GET'])
 def search_items():

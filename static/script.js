@@ -1,11 +1,13 @@
 // Global variables
 let addItemModal;
 let sellItemModal;
+let holdItemModal;
 
 // Initialize when document is ready
 document.addEventListener('DOMContentLoaded', function() {
     addItemModal = new bootstrap.Modal(document.getElementById('addItemModal'));
     sellItemModal = new bootstrap.Modal(document.getElementById('sellItemModal'));
+    holdItemModal = new bootstrap.Modal(document.getElementById('holdItemModal'));
     
     // Set up event listeners
     document.getElementById('search-input').addEventListener('input', filterItems);
@@ -68,16 +70,54 @@ function createItemCard(item) {
     const dateAdded = new Date(item.date_added).toLocaleDateString();
     const profit = item.sell_price ? (item.sell_price - item.purchase_price).toFixed(2) : null;
     
+    // Create hold status indicator
+    let holdStatus = '';
+    let holdInfo = '';
+    let cardClass = 'card item-card';
+    
+    if (item.on_hold && item.hold_info) {
+        cardClass += ' on-hold';
+        holdStatus = '<div class="hold-status"><span class="hold-badge">ON HOLD</span></div>';
+        const dateHeld = new Date(item.hold_info.date_held).toLocaleDateString();
+        holdInfo = `
+            <div class="hold-info">
+                <strong>Customer:</strong> ${item.hold_info.customer_name}<br>
+                <strong>Note:</strong> ${item.hold_info.hold_note}<br>
+                <strong>Held since:</strong> ${dateHeld}
+            </div>
+        `;
+    }
+    
+    // Create action buttons
+    let actionButtons = '';
+    if (item.on_hold) {
+        actionButtons = `
+            <div class="action-buttons">
+                <button class="btn btn-release" onclick="releaseHold('${item.id}')">Release Hold</button>
+                <button class="btn btn-primary" onclick="showSellItemModal('${item.id}')">Sell Item</button>
+            </div>
+        `;
+    } else {
+        actionButtons = `
+            <div class="action-buttons">
+                <button class="btn btn-hold" onclick="showHoldItemModal('${item.id}')">Hold Item</button>
+                <button class="btn btn-primary" onclick="showSellItemModal('${item.id}')">Sell Item</button>
+            </div>
+        `;
+    }
+    
     col.innerHTML = `
-        <div class="card item-card">
+        <div class="${cardClass}">
+            ${holdStatus}
             <div class="card-body">
                 <h5 class="card-title">${item.name}</h5>
                 <span class="badge bg-secondary item-type-badge">${item.type}</span>
                 <p class="card-text price-info">Purchase Price: $${item.purchase_price}</p>
                 <p class="date-added">Added: ${dateAdded}</p>
+                ${holdInfo}
             </div>
             <div class="card-footer">
-                <button class="btn btn-primary w-100" onclick="showSellItemModal('${item.id}')">Sell Item</button>
+                ${actionButtons}
             </div>
         </div>
     `;
@@ -141,6 +181,13 @@ function showSellItemModal(itemId) {
     document.getElementById('sell-item-form').reset();
     document.getElementById('sell-item-id').value = itemId;
     sellItemModal.show();
+}
+
+// Show hold item modal
+function showHoldItemModal(itemId) {
+    document.getElementById('hold-item-form').reset();
+    document.getElementById('hold-item-id').value = itemId;
+    holdItemModal.show();
 }
 
 // Add new item
@@ -211,6 +258,70 @@ async function sellItem() {
     } catch (error) {
         console.error('Error selling item:', error);
         alert('Error selling item');
+    }
+}
+
+// Hold item
+async function holdItem() {
+    const itemId = document.getElementById('hold-item-id').value;
+    const customerName = document.getElementById('customer-name').value;
+    const holdNote = document.getElementById('hold-note').value;
+    
+    if (!customerName || !holdNote) {
+        alert('Please fill in all fields');
+        return;
+    }
+    
+    try {
+        const response = await fetch('/api/hold-item', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                id: itemId,
+                customer_name: customerName,
+                hold_note: holdNote
+            })
+        });
+        
+        if (response.ok) {
+            holdItemModal.hide();
+            loadInventory();
+        } else {
+            alert('Error holding item');
+        }
+    } catch (error) {
+        console.error('Error holding item:', error);
+        alert('Error holding item');
+    }
+}
+
+// Release hold
+async function releaseHold(itemId) {
+    if (!confirm('Are you sure you want to release this hold?')) {
+        return;
+    }
+    
+    try {
+        const response = await fetch('/api/release-hold', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                id: itemId
+            })
+        });
+        
+        if (response.ok) {
+            loadInventory();
+        } else {
+            alert('Error releasing hold');
+        }
+    } catch (error) {
+        console.error('Error releasing hold:', error);
+        alert('Error releasing hold');
     }
 }
 
