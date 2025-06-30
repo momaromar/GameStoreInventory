@@ -46,8 +46,8 @@ function displayInventory(items) {
     container.innerHTML = '';
     
     items.forEach(item => {
-        const card = createItemCard(item);
-        container.appendChild(card);
+        const itemElement = createItemCard(item);
+        container.appendChild(itemElement);
     });
 }
 
@@ -62,22 +62,20 @@ function displaySoldItems(items) {
     });
 }
 
-// Create inventory item card
+// Create inventory item card (compact vertical layout)
 function createItemCard(item) {
-    const col = document.createElement('div');
-    col.className = 'col-md-4 col-lg-3';
+    const itemDiv = document.createElement('div');
     
     const dateAdded = new Date(item.date_added).toLocaleDateString();
-    const profit = item.sell_price ? (item.sell_price - item.purchase_price).toFixed(2) : null;
     
     // Create hold status indicator
     let holdStatus = '';
     let holdInfo = '';
-    let cardClass = 'card item-card';
+    let itemClass = 'inventory-item';
     
     if (item.on_hold && item.hold_info) {
-        cardClass += ' on-hold';
-        holdStatus = '<div class="hold-status"><span class="hold-badge">ON HOLD</span></div>';
+        itemClass += ' on-hold';
+        holdStatus = '<span class="hold-badge">ON HOLD</span>';
         const dateHeld = new Date(item.hold_info.date_held).toLocaleDateString();
         holdInfo = `
             <div class="hold-info">
@@ -106,23 +104,21 @@ function createItemCard(item) {
         `;
     }
     
-    col.innerHTML = `
-        <div class="${cardClass}">
+    itemDiv.innerHTML = `
+        <div class="${itemClass}">
             ${holdStatus}
-            <div class="card-body">
-                <h5 class="card-title">${item.name}</h5>
-                <span class="badge bg-secondary item-type-badge">${item.type}</span>
-                <p class="card-text price-info">Purchase Price: $${item.purchase_price}</p>
-                <p class="date-added">Added: ${dateAdded}</p>
+            <div class="item-info">
+                <div class="item-name">${item.name}</div>
+                <div class="item-type">${item.type}</div>
+                <div class="item-price">$${item.purchase_price}</div>
+                <div class="item-date">Added: ${dateAdded}</div>
                 ${holdInfo}
             </div>
-            <div class="card-footer">
-                ${actionButtons}
-            </div>
+            ${actionButtons}
         </div>
     `;
     
-    return col;
+    return itemDiv;
 }
 
 // Create sold item card
@@ -136,7 +132,7 @@ function createSoldItemCard(item) {
     const profitClass = profit >= 0 ? 'profit-positive' : 'profit-negative';
     
     col.innerHTML = `
-        <div class="card item-card">
+        <div class="card sold-item-card">
             <div class="card-body">
                 <h5 class="card-title">${item.name}</h5>
                 <span class="badge bg-secondary item-type-badge">${item.type}</span>
