@@ -114,9 +114,8 @@ function createItemCard(item) {
             <div class="item-info">
                 <div class="item-name">${item.name}</div>
                 <div class="item-type">${item.type}</div>
-                <div class="item-price">$${item.purchase_price}</div>
+                <div class="item-price">Listing Price: $${item.purchase_price}</div>
                 <div class="item-quantity">Qty: <strong>${item.quantity || 1}</strong></div>
-                <div class="item-date">Added: ${dateAdded}</div>
                 ${holdInfo}
             </div>
             ${actionButtons}
@@ -142,12 +141,10 @@ function createSoldItemCard(item) {
                 <h5 class="card-title">${item.name}</h5>
                 <span class="badge bg-secondary item-type-badge">${item.type}</span>
                 <p class="card-text price-info">
-                    Purchase: $${item.purchase_price}<br>
+                    Listing Price: $${item.purchase_price}<br>
                     Sold: $${item.sell_price}<br>
-                    <span class="${profitClass}">Profit: $${profit}</span>
                 </p>
                 <p class="date-added">
-                    Added: ${dateAdded}<br>
                     Sold: ${dateSold}
                 </p>
             </div>
