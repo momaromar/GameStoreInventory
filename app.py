@@ -182,5 +182,36 @@ def search_items():
     
     return jsonify(filtered_items)
 
+@app.route('/api/edit-item', methods=['POST'])
+def edit_item():
+    data = request.json
+    item_id = data['id']
+    new_name = data.get('name')
+    new_type = data.get('type')
+    new_purchase_price = data.get('purchase_price')
+    new_quantity = data.get('quantity')
+
+    with open('data/inventory.json', 'r') as f:
+        inventory = json.load(f)
+
+    for item in inventory:
+        if item['id'] == item_id:
+            if item.get('on_hold', False):
+                return jsonify({'success': False, 'error': 'Cannot edit item while it is on hold.'}), 400
+            if new_name is not None:
+                item['name'] = new_name
+            if new_type is not None:
+                item['type'] = new_type
+            if new_purchase_price is not None:
+                item['purchase_price'] = float(new_purchase_price)
+            if new_quantity is not None:
+                item['quantity'] = int(new_quantity)
+            break
+
+    with open('data/inventory.json', 'w') as f:
+        json.dump(inventory, f, indent=4)
+
+    return jsonify({'success': True})
+
 if __name__ == '__main__':
     app.run(debug=True) 

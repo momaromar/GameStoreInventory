@@ -2,12 +2,14 @@
 let addItemModal;
 let sellItemModal;
 let holdItemModal;
+let editItemModal;
 
 // Initialize when document is ready
 document.addEventListener('DOMContentLoaded', function() {
     addItemModal = new bootstrap.Modal(document.getElementById('addItemModal'));
     sellItemModal = new bootstrap.Modal(document.getElementById('sellItemModal'));
     holdItemModal = new bootstrap.Modal(document.getElementById('holdItemModal'));
+    editItemModal = new bootstrap.Modal(document.getElementById('editItemModal'));
     
     // Set up event listeners
     document.getElementById('search-input').addEventListener('input', filterItems);
@@ -101,6 +103,7 @@ function createItemCard(item) {
             <div class="action-buttons">
                 <button class="btn btn-hold" onclick="showHoldItemModal('${item.id}')">Hold Item</button>
                 <button class="btn btn-primary" onclick="showSellItemModal('${item.id}')">Sell Item</button>
+                <button class="btn btn-success" onclick="showEditItemModal('${item.id}')">Edit</button>
             </div>
         `;
     }
@@ -191,6 +194,18 @@ function showHoldItemModal(itemId) {
     document.getElementById('hold-item-form').reset();
     document.getElementById('hold-item-id').value = itemId;
     holdItemModal.show();
+}
+
+// Show edit item modal
+function showEditItemModal(itemId) {
+    const item = window.currentInventoryItems?.find(i => i.id === itemId);
+    if (!item) return;
+    document.getElementById('edit-item-id').value = item.id;
+    document.getElementById('edit-item-name').value = item.name;
+    document.getElementById('edit-item-type').value = item.type;
+    document.getElementById('edit-purchase-price').value = item.purchase_price;
+    document.getElementById('edit-item-quantity').value = item.quantity || 1;
+    editItemModal.show();
 }
 
 // Add new item
@@ -335,6 +350,44 @@ async function releaseHold(itemId) {
     } catch (error) {
         console.error('Error releasing hold:', error);
         alert('Error releasing hold');
+    }
+}
+
+// Edit item
+async function editItem() {
+    const id = document.getElementById('edit-item-id').value;
+    const name = document.getElementById('edit-item-name').value;
+    const type = document.getElementById('edit-item-type').value;
+    const purchase_price = document.getElementById('edit-purchase-price').value;
+    const quantity = document.getElementById('edit-item-quantity').value;
+    if (!name || !type || !purchase_price || !quantity || quantity < 1) {
+        alert('Please fill in all fields and enter a valid quantity');
+        return;
+    }
+    try {
+        const response = await fetch('/api/edit-item', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                id,
+                name,
+                type,
+                purchase_price,
+                quantity
+            })
+        });
+        const result = await response.json();
+        if (result.success) {
+            editItemModal.hide();
+            loadInventory();
+        } else {
+            alert(result.error || 'Error editing item');
+        }
+    } catch (error) {
+        console.error('Error editing item:', error);
+        alert('Error editing item');
     }
 }
 
