@@ -524,4 +524,11 @@ GameStoreInventory/
 - Sold items record the quantity sold in each transaction.
 - UI validation prevents selling more than the available quantity.
 
+### Hold Splitting for Multi-Quantity Items
+**Enhancements:**
+- When placing an item with quantity greater than 1 on hold, the system now splits the group:
+  - The original item's quantity is decremented by 1.
+  - A new on-hold item (quantity 1, unique ID, hold info) is created.
+- This allows multiple of the same item to be placed on hold for different customers simultaneously.
+
 This flowchart provides a comprehensive overview of how the application works, making it easy for new collaborators to understand the codebase and contribute effectively. 

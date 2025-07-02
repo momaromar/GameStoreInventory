@@ -128,15 +128,29 @@ def hold_item():
     with open('data/inventory.json', 'r') as f:
         inventory = json.load(f)
     
-    # Find and update the item
     for item in inventory:
         if item['id'] == item_id:
-            item['on_hold'] = True
-            item['hold_info'] = {
-                'customer_name': customer_name,
-                'hold_note': hold_note,
-                'date_held': datetime.now().isoformat()
-            }
+            if item.get('quantity', 1) > 1:
+                # Decrement original item quantity
+                item['quantity'] -= 1
+                # Create a new on-hold item with quantity 1
+                new_item = item.copy()
+                new_item['id'] = str(datetime.now().timestamp())
+                new_item['on_hold'] = True
+                new_item['hold_info'] = {
+                    'customer_name': customer_name,
+                    'hold_note': hold_note,
+                    'date_held': datetime.now().isoformat()
+                }
+                new_item['quantity'] = 1
+                inventory.append(new_item)
+            else:
+                item['on_hold'] = True
+                item['hold_info'] = {
+                    'customer_name': customer_name,
+                    'hold_note': hold_note,
+                    'date_held': datetime.now().isoformat()
+                }
             break
     
     with open('data/inventory.json', 'w') as f:
@@ -153,10 +167,29 @@ def release_hold():
         inventory = json.load(f)
     
     # Find and update the item
-    for item in inventory:
+    for idx, item in enumerate(inventory):
         if item['id'] == item_id:
-            item['on_hold'] = False
-            item['hold_info'] = None
+            # Only merge if this was an on-hold item with quantity 1
+            if item.get('on_hold', False) and item.get('quantity', 1) == 1:
+                # Try to find a matching non-hold group
+                for other in inventory:
+                    if (
+                        other['id'] != item['id'] and
+                        not other.get('on_hold', False) and
+                        other['name'].lower() == item['name'].lower() and
+                        other['type'] == item['type'] and
+                        float(other['purchase_price']) == float(item['purchase_price'])
+                    ):
+                        other['quantity'] = other.get('quantity', 1) + 1
+                        del inventory[idx]
+                        break
+                else:
+                    # No matching group, just mark as not on hold
+                    item['on_hold'] = False
+                    item['hold_info'] = None
+            else:
+                item['on_hold'] = False
+                item['hold_info'] = None
             break
     
     with open('data/inventory.json', 'w') as f:
