@@ -23,6 +23,7 @@ async function loadInventory() {
     try {
         const response = await fetch('/api/inventory');
         const items = await response.json();
+        window.currentInventoryItems = items;
         displayInventory(items);
     } catch (error) {
         console.error('Error loading inventory:', error);
@@ -111,6 +112,7 @@ function createItemCard(item) {
                 <div class="item-name">${item.name}</div>
                 <div class="item-type">${item.type}</div>
                 <div class="item-price">$${item.purchase_price}</div>
+                <div class="item-quantity">Qty: <strong>${item.quantity || 1}</strong></div>
                 <div class="item-date">Added: ${dateAdded}</div>
                 ${holdInfo}
             </div>
@@ -176,6 +178,11 @@ function showAddItemModal() {
 function showSellItemModal(itemId) {
     document.getElementById('sell-item-form').reset();
     document.getElementById('sell-item-id').value = itemId;
+    const item = window.currentInventoryItems?.find(i => i.id === itemId);
+    const availableQty = item ? (item.quantity || 1) : 1;
+    document.getElementById('sell-quantity').max = availableQty;
+    document.getElementById('sell-quantity').value = 1;
+    document.getElementById('available-quantity-info').textContent = `Available: ${availableQty}`;
     sellItemModal.show();
 }
 
@@ -191,9 +198,10 @@ async function addItem() {
     const name = document.getElementById('item-name').value;
     const type = document.getElementById('item-type').value;
     const purchasePrice = document.getElementById('purchase-price').value;
+    const quantity = document.getElementById('item-quantity').value;
     
-    if (!name || !type || !purchasePrice) {
-        alert('Please fill in all fields');
+    if (!name || !type || !purchasePrice || !quantity || quantity < 1) {
+        alert('Please fill in all fields and enter a valid quantity');
         return;
     }
     
@@ -206,7 +214,8 @@ async function addItem() {
             body: JSON.stringify({
                 name,
                 type,
-                purchase_price: purchasePrice
+                purchase_price: purchasePrice,
+                quantity: quantity
             })
         });
         
@@ -226,9 +235,16 @@ async function addItem() {
 async function sellItem() {
     const itemId = document.getElementById('sell-item-id').value;
     const sellPrice = document.getElementById('sell-price').value;
+    const sellQuantity = parseInt(document.getElementById('sell-quantity').value, 10);
+    const item = window.currentInventoryItems?.find(i => i.id === itemId);
+    const availableQty = item ? (item.quantity || 1) : 1;
     
-    if (!sellPrice) {
-        alert('Please enter a sell price');
+    if (!sellPrice || !sellQuantity || sellQuantity < 1) {
+        alert('Please enter a sell price and a valid quantity');
+        return;
+    }
+    if (sellQuantity > availableQty) {
+        alert('Cannot sell more than available quantity.');
         return;
     }
     
@@ -240,7 +256,8 @@ async function sellItem() {
             },
             body: JSON.stringify({
                 id: itemId,
-                sell_price: sellPrice
+                sell_price: sellPrice,
+                quantity: sellQuantity
             })
         });
         

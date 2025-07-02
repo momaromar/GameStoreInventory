@@ -514,4 +514,14 @@ GameStoreInventory/
 - ✅ View sold items history
 - ✅ Responsive design for single-computer store use
 
+### Quantity Attribute & Multi-Sell Feature
+**Enhancements:**
+- Added a `quantity` attribute to each inventory item, allowing tracking of multiple units per item.
+- Updated the Add Item form and backend to support specifying quantity when adding items.
+- Inventory list now displays the quantity for each item.
+- Sell Item modal now allows the user to specify how many units to sell at once.
+- Backend and frontend logic updated to decrement quantity or remove the item as appropriate.
+- Sold items record the quantity sold in each transaction.
+- UI validation prevents selling more than the available quantity.
+
 This flowchart provides a comprehensive overview of how the application works, making it easy for new collaborators to understand the codebase and contribute effectively. 

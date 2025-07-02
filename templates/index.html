@@ -84,6 +84,10 @@
                             <label class="form-label">Purchase Price ($)</label>
                             <input type="number" class="form-control" id="purchase-price" step="0.01" required>
                         </div>
+                        <div class="mb-3">
+                            <label class="form-label">Quantity</label>
+                            <input type="number" class="form-control" id="item-quantity" min="1" value="1" required>
+                        </div>
                     </form>
                 </div>
                 <div class="modal-footer">
@@ -105,6 +109,11 @@
                 <div class="modal-body">
                     <form id="sell-item-form">
                         <input type="hidden" id="sell-item-id">
+                        <div class="mb-3">
+                            <label class="form-label">Quantity to Sell</label>
+                            <input type="number" class="form-control" id="sell-quantity" min="1" value="1" required>
+                            <div class="form-text" id="available-quantity-info"></div>
+                        </div>
                         <div class="mb-3">
                             <label class="form-label">Sell Price ($)</label>
                             <input type="number" class="form-control" id="sell-price" step="0.01" required>

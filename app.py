@@ -40,6 +40,7 @@ def get_sold_items():
 @app.route('/api/add-item', methods=['POST'])
 def add_item():
     data = request.json
+    quantity = int(data.get('quantity', 1))
     item = {
         'id': str(datetime.now().timestamp()),
         'name': data['name'],
@@ -47,13 +48,27 @@ def add_item():
         'purchase_price': float(data['purchase_price']),
         'date_added': datetime.now().isoformat(),
         'on_hold': False,
-        'hold_info': None
+        'hold_info': None,
+        'quantity': quantity
     }
     
     with open('data/inventory.json', 'r') as f:
         inventory = json.load(f)
     
-    inventory.append(item)
+    # If an item with the same name, type, and price exists and is not on hold, increment its quantity
+    found = False
+    for inv_item in inventory:
+        if (
+            inv_item['name'].lower() == item['name'].lower() and
+            inv_item['type'] == item['type'] and
+            float(inv_item['purchase_price']) == float(item['purchase_price']) and
+            not inv_item.get('on_hold', False)
+        ):
+            inv_item['quantity'] = inv_item.get('quantity', 1) + quantity
+            found = True
+            break
+    if not found:
+        inventory.append(item)
     
     with open('data/inventory.json', 'w') as f:
         json.dump(inventory, f, indent=4)
@@ -65,39 +80,42 @@ def sell_item():
     data = request.json
     item_id = data['id']
     sell_price = float(data['sell_price'])
+    quantity_to_sell = int(data.get('quantity', 1))
     
     with open('data/inventory.json', 'r') as f:
         inventory = json.load(f)
     
-    # Find and remove the item from inventory
+    # Find the item in inventory
     item_to_sell = None
     for item in inventory:
         if item['id'] == item_id:
             item_to_sell = item
-            inventory.remove(item)
             break
     
     if item_to_sell:
+        available_qty = item_to_sell.get('quantity', 1)
+        if quantity_to_sell > available_qty:
+            return jsonify({'success': False, 'error': 'Not enough quantity available'}), 400
+        # Decrement quantity or remove item
+        if available_qty > quantity_to_sell:
+            item_to_sell['quantity'] -= quantity_to_sell
+        else:
+            inventory.remove(item_to_sell)
         # Add to sold items
         sold_item = {
             **item_to_sell,
             'sell_price': sell_price,
-            'date_sold': datetime.now().isoformat()
+            'date_sold': datetime.now().isoformat(),
+            'quantity': quantity_to_sell
         }
-        
         with open('data/sold_items.json', 'r') as f:
             sold_items = json.load(f)
-        
         sold_items.append(sold_item)
-        
         with open('data/sold_items.json', 'w') as f:
             json.dump(sold_items, f, indent=4)
-        
         with open('data/inventory.json', 'w') as f:
             json.dump(inventory, f, indent=4)
-        
         return jsonify({'success': True})
-    
     return jsonify({'success': False, 'error': 'Item not found'})
 
 @app.route('/api/hold-item', methods=['POST'])
