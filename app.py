@@ -126,6 +126,7 @@ def hold_item():
     customer_phone = data['customer_phone']
     hold_note = data['hold_note']
     quantity_to_hold = int(data.get('quantity', 1))
+    auto_release_date = data.get('auto_release_date')
     
     with open('data/inventory.json', 'r') as f:
         inventory = json.load(f)
@@ -147,7 +148,8 @@ def hold_item():
                     'customer_name': customer_name,
                     'customer_phone': customer_phone,
                     'hold_note': hold_note,
-                    'date_held': datetime.now().isoformat()
+                    'date_held': datetime.now().isoformat(),
+                    'auto_release_date': auto_release_date if auto_release_date else None
                 }
                 new_item['quantity'] = quantity_to_hold
                 inventory.append(new_item)
@@ -157,7 +159,8 @@ def hold_item():
                     'customer_name': customer_name,
                     'customer_phone': customer_phone,
                     'hold_note': hold_note,
-                    'date_held': datetime.now().isoformat()
+                    'date_held': datetime.now().isoformat(),
+                    'auto_release_date': auto_release_date if auto_release_date else None
                 }
             break
     

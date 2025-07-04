@@ -85,7 +85,8 @@ function createItemCard(item) {
                 <strong>Customer:</strong> ${item.hold_info.customer_name}<br>
                 <strong>Phone:</strong> ${item.hold_info.customer_phone}<br>
                 <strong>Note:</strong> ${item.hold_info.hold_note}<br>
-                <strong>Held since:</strong> ${dateHeld}
+                <strong>Held since:</strong> ${dateHeld}<br>
+                ${item.hold_info.auto_release_date ? `<strong>Auto-Release:</strong> ${item.hold_info.auto_release_date}<br>` : ''}
             </div>
         `;
     }
@@ -299,6 +300,7 @@ async function holdItem() {
     const customerPhone = document.getElementById('customer-phone').value;
     const holdNote = document.getElementById('hold-note').value;
     const holdQuantity = parseInt(document.getElementById('hold-quantity').value, 10);
+    const autoReleaseDate = document.getElementById('hold-auto-release-date').value;
     const item = window.currentInventoryItems?.find(i => i.id === itemId);
     const availableQty = item ? (item.quantity || 1) : 1;
     
@@ -322,7 +324,8 @@ async function holdItem() {
                 customer_name: customerName,
                 customer_phone: customerPhone,
                 hold_note: holdNote,
-                quantity: holdQuantity
+                quantity: holdQuantity,
+                auto_release_date: autoReleaseDate
             })
         });
         
