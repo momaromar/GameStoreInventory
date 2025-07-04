@@ -81,7 +81,7 @@
                             </select>
                         </div>
                         <div class="mb-3">
-                            <label class="form-label">Purchase Price ($)</label>
+                            <label class="form-label">Listing Price ($)</label>
                             <input type="number" class="form-control" id="purchase-price" step="0.01" required>
                         </div>
                         <div class="mb-3">
@@ -144,6 +144,15 @@
                             <input type="text" class="form-control" id="customer-name" required>
                         </div>
                         <div class="mb-3">
+                            <label class="form-label">Customer Phone</label>
+                            <input type="text" class="form-control" id="customer-phone" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Quantity to Hold</label>
+                            <input type="number" class="form-control" id="hold-quantity" min="1" value="1" required>
+                            <div class="form-text" id="hold-available-quantity-info"></div>
+                        </div>
+                        <div class="mb-3">
                             <label class="form-label">Hold Note</label>
                             <textarea class="form-control" id="hold-note" rows="3" placeholder="Reason for hold, customer contact info, etc." required></textarea>
                         </div>
@@ -183,7 +192,7 @@
                             </select>
                         </div>
                         <div class="mb-3">
-                            <label class="form-label">Purchase Price ($)</label>
+                            <label class="form-label">Listing Price ($)</label>
                             <input type="number" class="form-control" id="edit-purchase-price" step="0.01" required>
                         </div>
                         <div class="mb-3">

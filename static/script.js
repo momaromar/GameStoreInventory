@@ -83,6 +83,7 @@ function createItemCard(item) {
         holdInfo = `
             <div class="hold-info">
                 <strong>Customer:</strong> ${item.hold_info.customer_name}<br>
+                <strong>Phone:</strong> ${item.hold_info.customer_phone}<br>
                 <strong>Note:</strong> ${item.hold_info.hold_note}<br>
                 <strong>Held since:</strong> ${dateHeld}
             </div>
@@ -190,6 +191,11 @@ function showSellItemModal(itemId) {
 function showHoldItemModal(itemId) {
     document.getElementById('hold-item-form').reset();
     document.getElementById('hold-item-id').value = itemId;
+    const item = window.currentInventoryItems?.find(i => i.id === itemId);
+    const availableQty = item ? (item.quantity || 1) : 1;
+    document.getElementById('hold-quantity').max = availableQty;
+    document.getElementById('hold-quantity').value = 1;
+    document.getElementById('hold-available-quantity-info').textContent = `Available: ${availableQty}`;
     holdItemModal.show();
 }
 
@@ -290,10 +296,18 @@ async function sellItem() {
 async function holdItem() {
     const itemId = document.getElementById('hold-item-id').value;
     const customerName = document.getElementById('customer-name').value;
+    const customerPhone = document.getElementById('customer-phone').value;
     const holdNote = document.getElementById('hold-note').value;
+    const holdQuantity = parseInt(document.getElementById('hold-quantity').value, 10);
+    const item = window.currentInventoryItems?.find(i => i.id === itemId);
+    const availableQty = item ? (item.quantity || 1) : 1;
     
-    if (!customerName || !holdNote) {
-        alert('Please fill in all fields');
+    if (!customerName || !customerPhone || !holdNote || !holdQuantity || holdQuantity < 1) {
+        alert('Please fill in all fields and enter a valid quantity');
+        return;
+    }
+    if (holdQuantity > availableQty) {
+        alert('Cannot hold more than available quantity.');
         return;
     }
     
@@ -306,7 +320,9 @@ async function holdItem() {
             body: JSON.stringify({
                 id: itemId,
                 customer_name: customerName,
-                hold_note: holdNote
+                customer_phone: customerPhone,
+                hold_note: holdNote,
+                quantity: holdQuantity
             })
         });
         
