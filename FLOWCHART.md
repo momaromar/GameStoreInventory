@@ -531,4 +531,10 @@ GameStoreInventory/
   - A new on-hold item (quantity 1, unique ID, hold info) is created.
 - This allows multiple of the same item to be placed on hold for different customers simultaneously.
 
+### Hold Release Merging Fix
+**Enhancements:**
+- When releasing an on-hold item (of any quantity), the system now correctly merges it back into its original group if a matching non-hold group exists (same name, type, and listing price).
+- If no matching group exists, the item is simply marked as not on hold.
+- This keeps the inventory organized and prevents fragmentation after multiple holds/releases.
+
 This flowchart provides a comprehensive overview of how the application works, making it easy for new collaborators to understand the codebase and contribute effectively. 
