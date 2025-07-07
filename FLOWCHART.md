@@ -537,4 +537,34 @@ GameStoreInventory/
 - If no matching group exists, the item is simply marked as not on hold.
 - This keeps the inventory organized and prevents fragmentation after multiple holds/releases.
 
+### Automatic Daily Hold Checking System
+**Major Enhancement:**
+- Implemented a background thread that automatically checks for expired holds daily without requiring external scheduled jobs.
+- **Background Thread**: Added a daemon thread that runs continuously in the background, checking every hour if it's a new day since the last auto-release check.
+- **Date Tracking**: Uses `last_auto_release_check` global variable to ensure auto-release only runs once per day.
+- **Automatic Startup**: When the app starts, it immediately performs an initial auto-release check for any expired holds.
+- **Error Handling**: Includes robust error handling with retry logic if the background thread encounters issues.
+- **Efficient Operation**: Only checks once per day, not continuously, to minimize resource usage.
+- **Console Feedback**: Prints messages to console when holds are automatically released.
+
+**Technical Implementation:**
+- Added `perform_auto_release()` function that handles the actual hold release logic.
+- Added `auto_release_checker()` function that runs in a background thread.
+- Thread checks every hour using `time.sleep(3600)` and compares current date with last check date.
+- Uses `threading.Thread(target=auto_release_checker, daemon=True)` to start the background process.
+- Global variable `last_auto_release_check` tracks the last date when auto-release was performed.
+
+**UI Changes:**
+- Removed the manual "Auto-Release Expired Holds" button from the inventory interface.
+- Removed the corresponding `autoReleaseHolds()` JavaScript function.
+- The system now operates completely automatically without user intervention.
+
+**Benefits:**
+- ✅ **No external dependencies** - No need for cron jobs or task schedulers
+- ✅ **Automatic operation** - Works as soon as the app starts
+- ✅ **Efficient** - Only checks once per day, not continuously
+- ✅ **Reliable** - Error handling and retry logic
+- ✅ **User-friendly** - No manual intervention required
+- ✅ **Cleaner UI** - Removed unnecessary manual button
+
 This flowchart provides a comprehensive overview of how the application works, making it easy for new collaborators to understand the codebase and contribute effectively. 

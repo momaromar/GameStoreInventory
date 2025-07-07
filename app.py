@@ -1,14 +1,19 @@
 from flask import Flask, render_template, request, jsonify
 import json
-from datetime import datetime
+from datetime import datetime, date
 import os
 from dateutil import parser
+import threading
+import time
 
 app = Flask(__name__)
 
 # Ensure data directory exists
 if not os.path.exists('data'):
     os.makedirs('data')
+
+# Track last auto-release check
+last_auto_release_check = None
 
 # Initialize JSON files if they don't exist
 def init_json_files():
@@ -18,6 +23,83 @@ def init_json_files():
     if not os.path.exists('data/sold_items.json'):
         with open('data/sold_items.json', 'w') as f:
             json.dump([], f)
+
+def perform_auto_release():
+    """Perform auto-release of expired holds"""
+    global last_auto_release_check
+    
+    with open('data/inventory.json', 'r') as f:
+        inventory = json.load(f)
+    
+    today = date.today()
+    released_count = 0
+    
+    # Find items that need to be auto-released
+    for item in inventory:
+        if (item.get('on_hold', False) and 
+            item.get('hold_info') and 
+            item['hold_info'].get('auto_release_date')):
+            
+            try:
+                auto_release_date = datetime.strptime(item['hold_info']['auto_release_date'], '%Y-%m-%d').date()
+                if auto_release_date <= today:
+                    # Auto-release this item
+                    if item.get('quantity', 1) == 1:
+                        # Try to merge back into original group
+                        merged = False
+                        for other_item in inventory:
+                            if (other_item['id'] != item['id'] and 
+                                not other_item.get('on_hold', False) and
+                                other_item['name'].lower() == item['name'].lower() and
+                                other_item['type'] == item['type'] and
+                                float(other_item['purchase_price']) == float(item['purchase_price'])):
+                                
+                                other_item['quantity'] = other_item.get('quantity', 1) + item.get('quantity', 1)
+                                inventory.remove(item)
+                                merged = True
+                                break
+                        
+                        if not merged:
+                            item['on_hold'] = False
+                            item['hold_info'] = None
+                    else:
+                        item['on_hold'] = False
+                        item['hold_info'] = None
+                    
+                    released_count += 1
+            except ValueError:
+                # Invalid date format, skip this item
+                continue
+    
+    if released_count > 0:
+        with open('data/inventory.json', 'w') as f:
+            json.dump(inventory, f, indent=4)
+        print(f"Auto-released {released_count} expired hold(s)")
+    
+    last_auto_release_check = today
+
+def auto_release_checker():
+    """Background thread that checks for expired holds daily"""
+    global last_auto_release_check
+    
+    while True:
+        try:
+            today = date.today()
+            
+            if last_auto_release_check != today:
+                perform_auto_release()
+            
+            time.sleep(3600)  # Check every hour
+        except Exception as e:
+            print(f"Error in auto-release checker: {e}")
+            time.sleep(3600)  # Wait an hour before retrying
+
+# Start background thread for auto-release checking
+auto_release_thread = threading.Thread(target=auto_release_checker, daemon=True)
+auto_release_thread.start()
+
+# Perform initial auto-release check on startup
+perform_auto_release()
 
 init_json_files()
 
@@ -258,6 +340,11 @@ def edit_item():
         json.dump(inventory, f, indent=4)
 
     return jsonify({'success': True})
+
+@app.route('/api/auto-release-holds', methods=['POST'])
+def auto_release_holds():
+    perform_auto_release()
+    return jsonify({'success': True, 'released_count': 0})  # Count is printed in perform_auto_release
 
 if __name__ == '__main__':
     app.run(debug=True) 

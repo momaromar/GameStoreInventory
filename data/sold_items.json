@@ -1,1 +1,14 @@
-[]
+[
+    {
+        "id": "1751678336.88899",
+        "name": "ITEM EXAMPLE 1",
+        "type": "console",
+        "purchase_price": 20.0,
+        "date_added": "2025-07-04T21:18:56.888990",
+        "on_hold": false,
+        "hold_info": null,
+        "quantity": 1,
+        "sell_price": 20.0,
+        "date_sold": "2025-07-04T21:19:27.000026"
+    }
+]
