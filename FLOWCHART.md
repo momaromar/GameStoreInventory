@@ -1,5 +1,7 @@
 # Game Store Inventory Management System - Flowchart Documentation
 
+This flowchart provides a comprehensive overview of how the application works, making it easy for new collaborators to understand the codebase and contribute effectively. 
+
 ## Application Overview
 This is a web-based inventory management system for a game store, built with Python Flask backend and modern JavaScript frontend. Data is stored in local JSON files.
 
@@ -491,80 +493,3 @@ GameStoreInventory/
 - Input validation on both frontend and backend
 - No SQL injection (JSON files only)
 - XSS protection through proper HTML escaping
-
-## Version History
-
-### Initial Release
-**Core Features:**
-- Core inventory management functionality
-- Add, sell, and track items
-- Search and filter capabilities
-- Hold system for customer reservations
-- Local JSON file storage
-- Modern responsive UI with Bootstrap
-- Complete documentation and flowchart
-
-**Key Features:**
-- ✅ Add new inventory items with name, type, and purchase price
-- ✅ Sell items and track profit/loss
-- ✅ Hold items for customers with notes
-- ✅ Release holds with confirmation
-- ✅ Search items by name
-- ✅ Filter by item type (consoles, games, accessories, controllers, merchandise)
-- ✅ View sold items history
-- ✅ Responsive design for single-computer store use
-
-### Quantity Attribute & Multi-Sell Feature
-**Enhancements:**
-- Added a `quantity` attribute to each inventory item, allowing tracking of multiple units per item.
-- Updated the Add Item form and backend to support specifying quantity when adding items.
-- Inventory list now displays the quantity for each item.
-- Sell Item modal now allows the user to specify how many units to sell at once.
-- Backend and frontend logic updated to decrement quantity or remove the item as appropriate.
-- Sold items record the quantity sold in each transaction.
-- UI validation prevents selling more than the available quantity.
-
-### Hold Splitting for Multi-Quantity Items
-**Enhancements:**
-- When placing an item with quantity greater than 1 on hold, the system now splits the group:
-  - The original item's quantity is decremented by 1.
-  - A new on-hold item (quantity 1, unique ID, hold info) is created.
-- This allows multiple of the same item to be placed on hold for different customers simultaneously.
-
-### Hold Release Merging Fix
-**Enhancements:**
-- When releasing an on-hold item (of any quantity), the system now correctly merges it back into its original group if a matching non-hold group exists (same name, type, and listing price).
-- If no matching group exists, the item is simply marked as not on hold.
-- This keeps the inventory organized and prevents fragmentation after multiple holds/releases.
-
-### Automatic Daily Hold Checking System
-**Major Enhancement:**
-- Implemented a background thread that automatically checks for expired holds daily without requiring external scheduled jobs.
-- **Background Thread**: Added a daemon thread that runs continuously in the background, checking every hour if it's a new day since the last auto-release check.
-- **Date Tracking**: Uses `last_auto_release_check` global variable to ensure auto-release only runs once per day.
-- **Automatic Startup**: When the app starts, it immediately performs an initial auto-release check for any expired holds.
-- **Error Handling**: Includes robust error handling with retry logic if the background thread encounters issues.
-- **Efficient Operation**: Only checks once per day, not continuously, to minimize resource usage.
-- **Console Feedback**: Prints messages to console when holds are automatically released.
-
-**Technical Implementation:**
-- Added `perform_auto_release()` function that handles the actual hold release logic.
-- Added `auto_release_checker()` function that runs in a background thread.
-- Thread checks every hour using `time.sleep(3600)` and compares current date with last check date.
-- Uses `threading.Thread(target=auto_release_checker, daemon=True)` to start the background process.
-- Global variable `last_auto_release_check` tracks the last date when auto-release was performed.
-
-**UI Changes:**
-- Removed the manual "Auto-Release Expired Holds" button from the inventory interface.
-- Removed the corresponding `autoReleaseHolds()` JavaScript function.
-- The system now operates completely automatically without user intervention.
-
-**Benefits:**
-- ✅ **No external dependencies** - No need for cron jobs or task schedulers
-- ✅ **Automatic operation** - Works as soon as the app starts
-- ✅ **Efficient** - Only checks once per day, not continuously
-- ✅ **Reliable** - Error handling and retry logic
-- ✅ **User-friendly** - No manual intervention required
-- ✅ **Cleaner UI** - Removed unnecessary manual button
-
-This flowchart provides a comprehensive overview of how the application works, making it easy for new collaborators to understand the codebase and contribute effectively. 
